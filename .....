@@ -1,0 +1,92 @@
+using System;
+
+class Program
+{
+    // Funcție pentru a converti un număr din baza b1 într-un număr zecimal (base 10)
+    static double ConvertToDecimal(string number, int base1)
+    {
+        double result = 0;
+        int pointIndex = number.IndexOf('.');
+        string integerPart = pointIndex == -1 ? number : number.Substring(0, pointIndex);
+        string fractionalPart = pointIndex == -1 ? "" : number.Substring(pointIndex + 1);
+
+        // Convertirea părții întregi
+        for (int i = 0; i < integerPart.Length; i++)
+        {
+            char c = integerPart[integerPart.Length - 1 - i];
+            int digitValue = (c >= '0' && c <= '9') ? c - '0' : c - 'A' + 10;
+            result += digitValue * Math.Pow(base1, i);
+        }
+
+        // Convertirea părții fracționare
+        for (int i = 0; i < fractionalPart.Length; i++)
+        {
+            char c = fractionalPart[i];
+            int digitValue = (c >= '0' && c <= '9') ? c - '0' : c - 'A' + 10;
+            result += digitValue * Math.Pow(base1, -(i + 1));
+        }
+
+        return result;
+    }
+
+    // Funcție pentru a converti un număr zecimal într-un număr într-o bază b2
+    static string ConvertFromDecimal(double number, int base2)
+    {
+        int integerPart = (int)number;
+        double fractionalPart = number - integerPart;
+        string result = "";
+
+        // Conversia părții întregi
+        while (integerPart > 0)
+        {
+            int remainder = integerPart % base2;
+            result = (remainder < 10 ? (char)(remainder + '0') : (char)(remainder - 10 + 'A')) + result;
+            integerPart /= base2;
+        }
+
+        if (result == "")
+            result = "0"; // cazul când partea întreagă este 0
+
+        // Conversia părții fracționare
+        if (fractionalPart > 0)
+        {
+            result += ".";
+            for (int i = 0; i < 10; i++) // Limita la 10 caractere după virgulă
+            {
+                fractionalPart *= base2;
+                int fractionalDigit = (int)fractionalPart;
+                result += (fractionalDigit < 10 ? (char)(fractionalDigit + '0') : (char)(fractionalDigit - 10 + 'A'));
+                fractionalPart -= fractionalDigit;
+                if (fractionalPart == 0)
+                    break;
+            }
+        }
+
+        return result;
+    }
+
+    static void Main()
+    {
+        Console.Write("Introduceți numărul în baza b1 (între 2 și 16): ");
+        string number = Console.ReadLine().ToUpper();
+
+        Console.Write("Introduceți baza b1 (între 2 și 16): ");
+        int base1 = int.Parse(Console.ReadLine());
+
+        Console.Write("Introduceți baza b2 (între 2 și 16): ");
+        int base2 = int.Parse(Console.ReadLine());
+
+        if (base1 < 2 || base1 > 16 || base2 < 2 || base2 > 16)
+        {
+            Console.WriteLine("Bazele trebuie să fie între 2 și 16.");
+            return;
+        }
+
+        // Conversia din baza b1 în zecimal
+        double decimalNumber = ConvertToDecimal(number, base1);
+        // Conversia din zecimal în baza b2
+        string result = ConvertFromDecimal(decimalNumber, base2);
+
+        Console.WriteLine($"Numărul {number} în baza {base1} este {result} în baza {base2}.");
+    }
+}
